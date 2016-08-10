@@ -1,0 +1,33 @@
+#!/bin/sh
+
+indent() {
+  sed -u 's/^/       /'
+}
+
+echo "-----> Install libreoffice"
+BUILD_DIR=$1
+CACHE_DIR=$2
+VENDOR_DIR="vendor"
+CACHE_FILE="$CACHE_DIR/liberoffice.tar.gz"
+
+if [ ! -f $CACHE_FILE ]; then	
+	DOWNLOAD_URL="https://dl.dropboxusercontent.com/u/75461649/liberoffice.tar.gz"
+	echo "-----> Downloading LibreOffice from $DOWNLOAD_URL"
+  	wget $DOWNLOAD_URL -P $BUILD_DIR | indent
+	  if [ ! -f $BUILD_DIR/liberoffice.tar.gz ]; then
+	    echo "Error: Unable to download LibreOffice" | indent
+	    ls $BUILD_DIR | indent
+	    exit 1;
+	  fi
+	echo "-----> Extracting LibreOffice from $BUILD_DIR/liberoffice.tar.gz"
+  tar xvf $BUILD_DIR/liberoffice.tar.gz | indent
+  mv $BUILD_DIR/liberoffice.tar.gz $CACHE_FILE
+
+else
+ 	echo "-----> Extracting LiberOffice $CACHE_FILE => $VENDOR_DIR"
+  	tar xzf $CACHE_FILE -C $VENDOR_DIR
+fi
+echo "exporting PATH" | indent
+PROFILE_PATH="$BUILD_DIR/.profile.d/liberoffice.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export PATH="$PATH:vendor/liberoffice/opt/libreoffice5.1/program"' >> $PROFILE_PATH
